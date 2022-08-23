@@ -28,7 +28,7 @@ fun PermissionsScreen(navController: NavHostController) {
         Button(onClick = {
             isCameraPermission.value = true
         }) {
-            Text("Click me!")
+            Text("Use Camera")
         }
 
         Permission(
@@ -37,29 +37,23 @@ fun PermissionsScreen(navController: NavHostController) {
                 Manifest.permission.CAMERA,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ),
-            permissionNotGrantedContent = { permissionsState ->
+            permissionNotGrantedContent = { permissionsState, textToShow ->
                 Rationale(
-                    textToShow = getTextToShowGivenPermissions(
-                        permissionsState.revokedPermissions,
-                        permissionsState.shouldShowRationale
-                    ),
+                    textToShow = textToShow,
                     onDismissRequest = { isCameraPermission.value = false },
                     onRequestPermission = {
                         permissionsState.launchMultiplePermissionRequest()
                     })
             },
-           permissionPermanentlyDeniedContent = { permissionsState ->
+           permissionPermanentlyDeniedContent = {textToShow ->
                PermissionNotAvailableAlertDialog(
                    onDismissRequest = { isCameraPermission.value = false },
                    onOpenSettingsClick = { isCameraPermission.value = false },
-                   textToShow = getTextToShowGivenPermissions(
-                       permissionsState.revokedPermissions,
-                       permissionsState.shouldShowRationale
-                   )
+                   textToShow = textToShow
                )
            }
         ) {
-            Text("Gotit!")
+            Text("All permissions granted. Thanks!")
         }
     }
 }
@@ -118,41 +112,4 @@ private fun PermissionNotAvailableAlertDialog(
         title = { Text(text = "Permanently Denied") },
         text = { Text(text = textToShow) }
     )
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
-private fun getTextToShowGivenPermissions(
-    permissions: List<PermissionState>,
-    shouldShowRationale: Boolean
-): String {
-    val revokedPermissionsSize = permissions.size
-    if (revokedPermissionsSize == 0) return ""
-
-    val textToShow = StringBuilder().apply {
-        append("The ")
-    }
-
-    for (i in permissions.indices) {
-        textToShow.append(permissions[i].permission.split(".")[2])
-        when {
-            revokedPermissionsSize > 1 && i == revokedPermissionsSize - 2 -> {
-                textToShow.append(", and ")
-            }
-            i == revokedPermissionsSize - 1 -> {
-                textToShow.append(" ")
-            }
-            else -> {
-                textToShow.append(", ")
-            }
-        }
-    }
-    textToShow.append(if (revokedPermissionsSize == 1) "permission is" else "permissions are")
-    textToShow.append(
-        if (shouldShowRationale) {
-            " important. Please grant ${ if(revokedPermissionsSize == 1) "it" else "all of them" } for the app to function properly."
-        } else {
-            " permanently denied. The app cannot function without ${ if(revokedPermissionsSize == 1) "it" else "them" }. Please go to settings and grant them."
-        }
-    )
-    return textToShow.toString()
 }
