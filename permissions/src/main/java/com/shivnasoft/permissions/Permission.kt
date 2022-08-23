@@ -13,7 +13,7 @@ fun Permission(
     showPermissionState: MutableState<Boolean>,
     permissions: List<String>,
     permissionNotGrantedContent: @Composable (MultiplePermissionsState) -> Unit,
-    permissionPermanentlyDeniedContent: @Composable () -> Unit,
+    permissionPermanentlyDeniedContent: @Composable (MultiplePermissionsState) -> Unit,
     permissionsGrantedContent: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -46,28 +46,6 @@ fun Permission(
         it.collectAsState(initial = false).value == true
     }
 
-  /*
-    val cameraPermissionDeniedStatus =
-        dataStore.cameraPermissionDeniedStatus.collectAsState(initial = false)
-    val readExtStoragePermissionDeniedStatus =
-        dataStore.readExternalStoragePermissionDeniedStatus.collectAsState(initial = false)
-*/
-    //val isPermissionsDenied = cameraPermissionDeniedStatus.value == true || readExtStoragePermissionDeniedStatus.value == true
-
-/*
-    val isAllDenied = listOf(
-        Manifest.permission.CAMERA,
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-    ).all {
-        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_DENIED
-    }
-*/
-
-/*    Log.i("@@@ allPermissionsGranted", multiplePermissionsState.allPermissionsGranted.toString())
-    Log.i("@@@ isAllDinied", isAllDenied.toString())
-    Log.i("@@@ isPermissionsDenied", isPermissionsDenied.toString())
-    Log.i("@@@ showrationale?", multiplePermissionsState.shouldShowRationale.toString())*/
-
     if (showPermissionState.value) {
         when {
             multiplePermissionsState.allPermissionsGranted ->
@@ -77,7 +55,7 @@ fun Permission(
                 permissionNotGrantedContent(multiplePermissionsState)
 
             !multiplePermissionsState.shouldShowRationale && isPermissionsDenied.isNotEmpty() ->
-                permissionPermanentlyDeniedContent()
+                permissionPermanentlyDeniedContent(multiplePermissionsState)
 
             else -> {
                 SideEffect {
@@ -87,15 +65,3 @@ fun Permission(
         }
     }
 }
-
-/*
-
-internal fun Context.findActivity(): Activity {
-    var context = this
-    while (context is ContextWrapper) {
-        if (context is Activity) return context
-        context = context.baseContext
-    }
-    throw IllegalStateException("Permissions should be called in the context of an Activity")
-}
-*/

@@ -12,8 +12,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -24,9 +22,7 @@ import com.google.accompanist.permissions.PermissionState
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun PermissionsScreen(navController: NavHostController) {
-    val scope = rememberCoroutineScope()
     val isCameraPermission = remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     Column {
         Button(onClick = {
@@ -43,7 +39,7 @@ fun PermissionsScreen(navController: NavHostController) {
             ),
             permissionNotGrantedContent = { permissionsState ->
                 Rationale(
-                    text = getTextToShowGivenPermissions(
+                    textToShow = getTextToShowGivenPermissions(
                         permissionsState.revokedPermissions,
                         permissionsState.shouldShowRationale
                     ),
@@ -52,11 +48,14 @@ fun PermissionsScreen(navController: NavHostController) {
                         permissionsState.launchMultiplePermissionRequest()
                     })
             },
-           permissionPermanentlyDeniedContent = {
+           permissionPermanentlyDeniedContent = { permissionsState ->
                PermissionNotAvailableAlertDialog(
                    onDismissRequest = { isCameraPermission.value = false },
                    onOpenSettingsClick = { isCameraPermission.value = false },
-                   textToShow = "Perm denied. Please goto settings to turn them on."
+                   textToShow = getTextToShowGivenPermissions(
+                       permissionsState.revokedPermissions,
+                       permissionsState.shouldShowRationale
+                   )
                )
            }
         ) {
@@ -67,7 +66,7 @@ fun PermissionsScreen(navController: NavHostController) {
 
 @Composable
 private fun Rationale(
-    text: String,
+    textToShow: String,
     onDismissRequest: (Boolean) -> Unit,
     onRequestPermission: () -> Unit
 ) {
@@ -78,10 +77,10 @@ private fun Rationale(
         ),
         onDismissRequest = { onDismissRequest(false) },
         title = {
-            Text(text = "Permission Request")
+            Text(text = "Permissions Denied")
         },
         text = {
-            Text(text)
+            Text(textToShow)
         },
         confirmButton = {
             TextButton(onClick = onRequestPermission) {
@@ -116,7 +115,7 @@ private fun PermissionNotAvailableAlertDialog(
             TextButton(onClick = { onDismissRequest(false) })
             { Text(text = "Cancel") }
         },
-        title = { Text(text = "Permission Request") },
+        title = { Text(text = "Permanently Denied") },
         text = { Text(text = textToShow) }
     )
 }
@@ -150,9 +149,9 @@ private fun getTextToShowGivenPermissions(
     textToShow.append(if (revokedPermissionsSize == 1) "permission is" else "permissions are")
     textToShow.append(
         if (shouldShowRationale) {
-            " important. Please grant all of them for the app to function properly."
+            " important. Please grant ${ if(revokedPermissionsSize == 1) "it" else "all of them" } for the app to function properly."
         } else {
-            " denied. The app cannot function without them."
+            " permanently denied. The app cannot function without ${ if(revokedPermissionsSize == 1) "it" else "them" }. Please go to settings and grant them."
         }
     )
     return textToShow.toString()
