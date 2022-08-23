@@ -9,7 +9,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-internal class PreferencesDataStoreHelper(private val context: Context, private val permissions: List<String>) {
+class PreferencesDataStoreHelper(private val context: Context, private val permissions: List<String>) {
 
     companion object{
         val Context.permissionsDataStore: DataStore<Preferences> by preferencesDataStore(name = "permissions_datastore")
