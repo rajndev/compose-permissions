@@ -60,7 +60,7 @@ fun Permission(
                 permissionNotGrantedContent(multiplePermissionsState, textToShow)
             }
 
-            !multiplePermissionsState.shouldShowRationale && isPermissionsDenied.isNotEmpty() -> {
+            isPermissionsDenied.isNotEmpty() -> {
                 val textToShow = getTextToShowGivenPermissions(
                     multiplePermissionsState.revokedPermissions,
                     multiplePermissionsState.shouldShowRationale
@@ -106,9 +106,9 @@ private fun getTextToShowGivenPermissions(
     textToShow.append(if (revokedPermissionsSize == 1) "permission is" else "permissions are")
     textToShow.append(
         if (shouldShowRationale) {
-            " important. Please grant ${ if(revokedPermissionsSize == 1) "it" else "all of them" } for the app to function properly."
+            " required for this feature to work properly. Please grant ${ if(revokedPermissionsSize == 1) "it" else "all of them." }"
         } else {
-            " permanently denied. The app cannot function without ${ if(revokedPermissionsSize == 1) "it" else "them" }. Please go to settings and grant them."
+            " permanently denied. This feature will not work without ${ if(revokedPermissionsSize == 1) "it" else "them" }. Please go to settings, and grant the required permissions."
         }
     )
     return textToShow.toString()
