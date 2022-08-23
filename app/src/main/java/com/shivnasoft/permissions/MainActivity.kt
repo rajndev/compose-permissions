@@ -45,8 +45,6 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainApp(navController: NavHostController) {
-    val context = LocalContext.current
-
     AnimatedNavHost(
         navController = navController, startDestination = NavScreens.MainScreen.route,
         enterTransition = { EnterTransition.None },
@@ -61,7 +59,7 @@ fun MainApp(navController: NavHostController) {
         composable(
             route = NavScreens.PermissionsScreen.route
         ) {
-            PermissionsScreen(navController)
+            PermissionsScreen()
         }
     }
 }

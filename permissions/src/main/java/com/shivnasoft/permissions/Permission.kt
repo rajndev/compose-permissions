@@ -106,7 +106,7 @@ private fun getTextToShowGivenPermissions(
     textToShow.append(if (revokedPermissionsSize == 1) "permission is" else "permissions are")
     textToShow.append(
         if (shouldShowRationale) {
-            " required for this feature to work properly. Please grant ${ if(revokedPermissionsSize == 1) "it" else "all of them." }"
+            " required for this feature to work properly. Please grant ${ if(revokedPermissionsSize == 1) "it." else "all of them." }"
         } else {
             " permanently denied. This feature will not work without ${ if(revokedPermissionsSize == 1) "it" else "them" }. Please go to settings, and grant the required permissions."
         }

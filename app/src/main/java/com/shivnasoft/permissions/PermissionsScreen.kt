@@ -20,7 +20,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun PermissionsScreen(navController: NavHostController) {
+fun PermissionsScreen() {
     val isCameraPermission = remember { mutableStateOf(false) }
 
     Column {
