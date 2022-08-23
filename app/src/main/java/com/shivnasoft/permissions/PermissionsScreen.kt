@@ -15,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionState
 
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
