@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.shivnasoft.permissions"
-        minSdk 24
+        minSdk 27
         targetSdk 33
         versionCode 1
         versionName "1.0"
