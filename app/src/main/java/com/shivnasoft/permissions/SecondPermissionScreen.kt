@@ -20,35 +20,34 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun PermissionsScreen() {
-    val isCameraPermission = remember { mutableStateOf(false) }
+fun SecondPermissionScreen() {
+    val isSecondPermission = remember { mutableStateOf(false) }
 
     Column {
         Button(onClick = {
-            isCameraPermission.value = true
+            isSecondPermission.value = true
         }) {
-            Text("Use Camera")
+            Text("Use Second Permission")
         }
 
         Permission(
-            showPermissionState = isCameraPermission,
+            showPermissionState = isSecondPermission,
             permissions = listOf(
                 Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.READ_CALENDAR
+                Manifest.permission.READ_EXTERNAL_STORAGE
             ),
             permissionNotGrantedContent = { permissionsState, textToShow ->
                 Rationale(
                     textToShow = textToShow,
-                    onDismissRequest = { isCameraPermission.value = false },
+                    onDismissRequest = { isSecondPermission.value = false },
                     onRequestPermission = {
                         permissionsState.launchMultiplePermissionRequest()
                     })
             },
            permissionPermanentlyDeniedContent = {textToShow ->
                PermissionNotAvailableAlertDialog(
-                   onDismissRequest = { isCameraPermission.value = false },
-                   onOpenSettingsClick = { isCameraPermission.value = false },
+                   onDismissRequest = { isSecondPermission.value = false },
+                   onOpenSettingsClick = { isSecondPermission.value = false },
                    textToShow = textToShow
                )
            }

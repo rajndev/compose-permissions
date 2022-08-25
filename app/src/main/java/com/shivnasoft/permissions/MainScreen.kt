@@ -14,6 +14,12 @@ fun MainScreen(navController: NavHostController) {
         }) {
             Text(text = "Goto permissions screen")
         }
+
+        Button(onClick = {
+            navController.navigate(NavScreens.SecondPermissionScreen.route)
+        }) {
+            Text(text = "Goto second permissions screen")
+        }
     }
 
 }

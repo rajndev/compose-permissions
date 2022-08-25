@@ -22,7 +22,7 @@ class PreferencesDataStoreHelper(private val context: Context, private val permi
             val permissionName = permission.split(".")[2]
             val status = context.permissionsDataStore.data
                 .map { preferences ->
-                    preferences[booleanPreferencesKey(permissionName)] ?: false
+                    preferences[booleanPreferencesKey(permissionName)]
                 }
             permissionsStatusList[permissionName] = status
         }

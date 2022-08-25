@@ -1,5 +1,6 @@
 package com.shivnasoft.permissions
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -22,20 +23,20 @@ fun Permission(
     val scope = rememberCoroutineScope()
 
     val multiplePermissionsState =
-        rememberMultiplePermissionsState(permissions = permissions) { it ->
+        rememberMultiplePermissionsState(permissions = permissions) { permissionsList ->
             showPermissionState.value = false
-            it.keys.forEach { perm ->
-                if (it[perm] == false) {
-                    scope.launch {
+            permissionsList.keys.forEach { permission ->
+                scope.launch {
+                    if (permissionsList[permission] == false) {
                         dataStore.setDataStoreValue(
-                            perm,
+                            permission,
                             true
                         )
                     }
-                } else if (it[perm] == true) {
-                    scope.launch {
+
+                    if (permissionsList[permission] == true) {
                         dataStore.setDataStoreValue(
-                            perm,
+                            permission,
                             false
                         )
                     }
@@ -43,9 +44,17 @@ fun Permission(
             }
         }
 
-    val isPermissionsDenied = dataStore.permissionsStatusList.values.filter {
-        it.collectAsState(initial = false).value == true
-    }
+        val permissionsDeniedList = dataStore.permissionsStatusList.values.filter {
+            it.collectAsState(initial = null).value == true
+        }
+
+        val permissionsNotRequestedList = dataStore.permissionsStatusList.filter {
+            it.value.collectAsState(initial = null).value == null
+        }
+
+    Log.i("@@@ Denied List", permissionsDeniedList.size.toString())
+    Log.i("@@@ Not Requeted List", permissionsNotRequestedList.size.toString())
+    Log.i("@@@ Not Requeted List", multiplePermissionsState.shouldShowRationale.toString())
 
     if (showPermissionState.value) {
         when {
@@ -55,15 +64,15 @@ fun Permission(
             multiplePermissionsState.shouldShowRationale -> {
                 val textToShow = getTextToShowGivenPermissions(
                     multiplePermissionsState.revokedPermissions,
-                    multiplePermissionsState.shouldShowRationale
+                    multiplePermissionsState.shouldShowRationale,
                 )
                 permissionNotGrantedContent(multiplePermissionsState, textToShow)
             }
 
-            isPermissionsDenied.isNotEmpty() -> {
+            permissionsDeniedList.isNotEmpty() && permissionsNotRequestedList.isEmpty()-> {
                 val textToShow = getTextToShowGivenPermissions(
                     multiplePermissionsState.revokedPermissions,
-                    multiplePermissionsState.shouldShowRationale
+                    multiplePermissionsState.shouldShowRationale,
                 )
                 permissionPermanentlyDeniedContent(textToShow)
             }
@@ -80,7 +89,7 @@ fun Permission(
 @OptIn(ExperimentalPermissionsApi::class)
 private fun getTextToShowGivenPermissions(
     permissions: List<PermissionState>,
-    shouldShowRationale: Boolean
+    shouldShowRationale: Boolean,
 ): String {
     val revokedPermissionsSize = permissions.size
     if (revokedPermissionsSize == 0) return ""
@@ -106,9 +115,9 @@ private fun getTextToShowGivenPermissions(
     textToShow.append(if (revokedPermissionsSize == 1) "permission is" else "permissions are")
     textToShow.append(
         if (shouldShowRationale) {
-            " required for this feature to work properly. Please grant ${ if(revokedPermissionsSize == 1) "it." else "all of them." }"
+            " required for this feature to work properly. Please grant ${if (revokedPermissionsSize == 1) "it." else "all of them."}"
         } else {
-            " permanently denied. This feature will not work without ${ if(revokedPermissionsSize == 1) "it" else "them" }. Please go to settings, and grant the required permissions."
+            " permanently denied. This feature will not work without ${if (revokedPermissionsSize == 1) "it" else "them"}. Please go to settings, and grant the required permissions."
         }
     )
     return textToShow.toString()

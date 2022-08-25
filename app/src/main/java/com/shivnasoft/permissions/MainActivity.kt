@@ -61,5 +61,11 @@ fun MainApp(navController: NavHostController) {
         ) {
             PermissionsScreen()
         }
+
+        composable(
+            route = NavScreens.SecondPermissionScreen.route
+        ) {
+            SecondPermissionScreen()
+        }
     }
 }
