@@ -52,10 +52,6 @@ fun Permission(
             it.value.collectAsState(initial = null).value == null
         }
 
-    Log.i("@@@ Denied List", permissionsDeniedList.size.toString())
-    Log.i("@@@ Not Requeted List", permissionsNotRequestedList.size.toString())
-    Log.i("@@@ Not Requeted List", multiplePermissionsState.shouldShowRationale.toString())
-
     if (showPermissionState.value) {
         when {
             multiplePermissionsState.allPermissionsGranted ->
