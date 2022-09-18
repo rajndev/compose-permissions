@@ -1,6 +1,5 @@
 package com.shivnasoft.permissions
 
-import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -16,46 +15,68 @@ fun Permission(
     permissions: List<String>,
     permissionNotGrantedContent: @Composable (MultiplePermissionsState, String) -> Unit,
     permissionPermanentlyDeniedContent: @Composable (String) -> Unit,
-    permissionsGrantedContent: @Composable () -> Unit
+    permissionsGrantedContent: @Composable (MutableState<Boolean>?) -> Unit
 ) {
     val context = LocalContext.current
     val dataStore = PreferencesDataStoreHelper(context = context, permissions)
     val scope = rememberCoroutineScope()
+    var multiplePermissionsState: MultiplePermissionsState? = null
+    val launchGrantedContent = remember { mutableStateOf(false) }
 
-    val multiplePermissionsState =
+    val permissionsDeniedList = dataStore.permissionsStatusList.values.filter {
+        it.collectAsState(initial = null).value == true
+    }
+
+    val permissionsNotRequestedList = dataStore.permissionsStatusList.filter {
+        it.value.collectAsState(initial = null).value == null
+    }
+
+    multiplePermissionsState =
         rememberMultiplePermissionsState(permissions = permissions) { permissionsList ->
             showPermissionState.value = false
-            permissionsList.keys.forEach { permission ->
-                scope.launch {
-                    if (permissionsList[permission] == false) {
-                        dataStore.setDataStoreValue(
-                            permission,
-                            true
-                        )
-                    }
+            if (multiplePermissionsState?.shouldShowRationale!! ||
+                (!multiplePermissionsState?.shouldShowRationale!! && permissionsDeniedList.isNotEmpty())
+            ) {
+                permissionsList.keys.forEach { permission ->
+                    scope.launch {
+                        if (permissionsList[permission] == false) {
+                            dataStore.setDataStoreValue(
+                                permission,
+                                true
+                            )
+                        }
 
-                    if (permissionsList[permission] == true) {
+                        if (permissionsList[permission] == true) {
+                            dataStore.setDataStoreValue(
+                                permission,
+                                false
+                            )
+                        }
+                    }
+                }
+            } else if (multiplePermissionsState?.allPermissionsGranted!!) {
+                permissionsList.keys.forEach { permission ->
+                    scope.launch {
                         dataStore.setDataStoreValue(
                             permission,
                             false
                         )
                     }
                 }
+                launchGrantedContent.value = true
             }
         }
 
-        val permissionsDeniedList = dataStore.permissionsStatusList.values.filter {
-            it.collectAsState(initial = null).value == true
-        }
+    if (launchGrantedContent.value) {
+        permissionsGrantedContent(launchGrantedContent)
 
-        val permissionsNotRequestedList = dataStore.permissionsStatusList.filter {
-            it.value.collectAsState(initial = null).value == null
-        }
+        //launchGrantedContent.value = false
+    }
 
     if (showPermissionState.value) {
         when {
             multiplePermissionsState.allPermissionsGranted ->
-                permissionsGrantedContent()
+                permissionsGrantedContent(null)
 
             multiplePermissionsState.shouldShowRationale -> {
                 val textToShow = getTextToShowGivenPermissions(
@@ -65,7 +86,7 @@ fun Permission(
                 permissionNotGrantedContent(multiplePermissionsState, textToShow)
             }
 
-            permissionsDeniedList.isNotEmpty() && permissionsNotRequestedList.isEmpty()-> {
+            permissionsDeniedList.isNotEmpty() && permissionsNotRequestedList.isEmpty() -> {
                 val textToShow = getTextToShowGivenPermissions(
                     multiplePermissionsState.revokedPermissions,
                     multiplePermissionsState.shouldShowRationale,

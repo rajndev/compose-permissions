@@ -53,6 +53,7 @@ fun SecondPermissionScreen() {
            }
         ) {
             Text("All permissions granted. Thanks!")
+            it?.value = false
         }
     }
 }

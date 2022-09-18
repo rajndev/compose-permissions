@@ -2,7 +2,11 @@ package com.shivnasoft.permissions
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
@@ -10,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.DialogProperties
@@ -22,6 +27,24 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 @Composable
 fun PermissionsScreen() {
     val isCameraPermission = remember { mutableStateOf(false) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+
+            }
+        }
+    )
+
+    @Composable
+    fun LaunchCamera() {
+        SideEffect {
+            val uri = Uri.EMPTY
+            cameraLauncher.launch(uri)
+            isCameraPermission.value = false
+        }
+    }
 
     Column {
         Button(onClick = {
@@ -53,7 +76,8 @@ fun PermissionsScreen() {
                )
            }
         ) {
-            Text("All permissions granted. Thanks!")
+            LaunchCamera()
+            it?.value = false
         }
     }
 }
