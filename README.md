@@ -17,20 +17,32 @@ repositories {
 
 ### build.gradle file
 
-
 ```gradle
 dependencies {
   implementation 'com.github.rajndev:compose-permissions:<latest-version>'
 }
 ```
 
+## Included Components
+
+### Permission: A composable to handle permission requests
+
+```kotlin
+@Composable
+fun Permission(
+    showPermissionState: MutableState<Boolean>,
+    permissions: List<String>,
+    permissionNotGrantedContent: @Composable (MultiplePermissionsState, String) -> Unit,
+    permissionPermanentlyDeniedContent: @Composable (String) -> Unit,
+    permissionsGrantedContent: @Composable () -> Unit
+)
+```
 
 ## Contributions
 
 Any and all contributions are welcome and appreciated. Please open a pull request when you are ready. Thank you.
 
 ## License
-
 
 ```
 MIT License
